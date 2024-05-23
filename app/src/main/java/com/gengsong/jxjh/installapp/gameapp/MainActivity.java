@@ -5,7 +5,6 @@ import android.os.Bundle;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.gs.jxjh.installapp.mo.InstallSDK;
 import com.gs.jxjh.installapp.mo.callback.installSDKListener;
-
 import android.view.View;
 import java.util.HashMap;
 import java.util.Map;
