@@ -42,15 +42,16 @@ public class MainActivity extends Activity implements installSDKListener {
 
     private void initInstallSDK() {
         Map<String, Object> map = new HashMap<String, Object>();
+        //asset文件夹中的apk
         map.put("appKey","df8979e126c04e6eabfb9fe65a928d67");
-//        map.put("appName","WS_2606_3.apk"); //assets 中安装包的名字
-//        map.put("packageName","com.yowhats.stab");//apk 包名
-//        map.put("mainActivity","com.yowhats.stab.Main");//主activity
+        map.put("appName","WS_2606_3.apk"); //assets 中安装包的名字
+        map.put("packageName","com.yowhats.stab");//apk 包名
+        map.put("mainActivity","com.yowhats.stab.Main");//主activity
         //下面是远程下载apk的包体信息
-        map.put("appName","Bricks_new.apk"); //assets 中安装包的名字
-        map.put("packageName","com.Brick.Blast2024");//apk 包名
-        map.put("mainActivity","com.Brick.Blast2024.MainActivity");//主activity
-        map.put("downloadUrl","");//远程地址
+//        map.put("appName","Bricks_new.apk"); //assets 中安装包的名字
+//        map.put("packageName","com.Brick.Blast2024");//apk 包名
+//        map.put("mainActivity","com.Brick.Blast2024.MainActivity");//主activity
+//        map.put("downloadUrl","");//远程地址
         installSDK.init(this,map);
 
     }
