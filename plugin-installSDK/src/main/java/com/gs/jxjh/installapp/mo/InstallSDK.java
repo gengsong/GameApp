@@ -22,6 +22,8 @@ import com.gs.jxjh.installapp.mo.base.Pre;
 import com.gs.jxjh.installapp.mo.callback.installSDKListener;
 import com.gs.jxjh.installapp.mo.constant.constants;
 import com.gs.jxjh.installapp.mo.utils.ApkInstaller;
+import com.gs.jxjh.installapp.mo.utils.LogUtils;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -37,12 +39,12 @@ public class InstallSDK extends Pre {
     private ApkInstaller mApkInstaller;
     public boolean flag=false;
     private String assetPath = "";
-    private String otherApkpackageName = "com.yowhats.stab";
-    private String getOtherMainActivity = "com.yowhats.stab.Main";
-    private String gameName = "WS_2606_3.apk";
+    private String appName = "";
+    private String sonApkpackageName = "";
+    private String getSonMainActivity = "";
     private String isOpen = "0";
     private static InstallSDK mInstance;
-    private String myPackageName = "";
+    private String mainAPKPackageName = "";
     private String apkFileName = "Bricks_new.apk";
     private long downloadId;
 
@@ -60,38 +62,34 @@ public class InstallSDK extends Pre {
     public void init() {
         registerReceiver();
         initpackagNameList();
+        mainAPKPackageName = activity.getPackageName();
+        appName = data.get("appName") +"";
+        sonApkpackageName = data.get("packageName") +"";
+        getSonMainActivity = data.get("mainActivity") + "";
+        constants.isOpenUrl = data.get("isOpen") + "";
+        LogUtils.d(TAG, "myPackageName==" +mainAPKPackageName + " appName=="+appName + " sonApkpackageName=="+sonApkpackageName +" getSonMainActivity=="+getSonMainActivity);
         onCallBack(installSDKListener.INIT_SUCCESS,"SUCCESS");
-        myPackageName = activity.getPackageName();
-        otherApkpackageName = data.get("packageName") +"";
-        getOtherMainActivity = data.get("mainActivity") + "";
+
     }
 
 
     public void installAPKs() {
-        boolean installed = detectApk(otherApkpackageName);
+        boolean installed = detectApk(sonApkpackageName);
         if (installed) {// 已经安装直接起动
-            Log.d("time", "getPackageManager start " +System.currentTimeMillis() + "");
-            Intent intent = new Intent();
-            // 组件名称，第一个参数是包名，也是主配置文件Manifest里设置好的包名 第二个是类名，要带上包名
-            intent.setComponent(new ComponentName(otherApkpackageName,getOtherMainActivity));
-            intent.setAction(Intent.ACTION_VIEW);
-            Log.d("time", "setAction start " + System.currentTimeMillis() + "");
-            activity.startActivity(intent);
+//            pullSonApk();
+            LogUtils.d(TAG, "已经安装直接起动");
         } else {// 未安装先安装
+            LogUtils.d(TAG, "未安装先安装 ");
             new MyAsyncTask().execute();
         }
     }
 
+
     public void downloadAPKs() {
-        boolean installed = detectApk(otherApkpackageName);
+        LogUtils.d(TAG, "安装远程apk");
+        boolean installed = detectApk(sonApkpackageName);
         if (installed) {// 已经安装直接起动
-            Log.d("time", "getPackageManager start " +System.currentTimeMillis() + "");
-            Intent intent = new Intent();
-            // 组件名称，第一个参数是包名，也是主配置文件Manifest里设置好的包名 第二个是类名，要带上包名
-            intent.setComponent(new ComponentName(otherApkpackageName,getOtherMainActivity));
-            intent.setAction(Intent.ACTION_VIEW);
-            Log.d("time", "setAction start " + System.currentTimeMillis() + "");
-            activity.startActivity(intent);
+//            pullSonApk();
         } else {// 先检测本地是否有安装包
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 if (activity.checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
@@ -103,6 +101,16 @@ public class InstallSDK extends Pre {
                 checkAndDownloadOrInstallApk();
             }
         }
+    }
+
+    public void pullSonApk() {
+        LogUtils.d(TAG, "getPackageManager start " +System.currentTimeMillis() + "");
+        Intent intent = new Intent();
+        // 组件名称，第一个参数是包名，也是主配置文件Manifest里设置好的包名 第二个是类名，要带上包名
+        intent.setComponent(new ComponentName(sonApkpackageName,getSonMainActivity));
+        intent.setAction(Intent.ACTION_VIEW);
+        LogUtils.d(TAG, "setAction start " + System.currentTimeMillis() + "");
+        activity.startActivity(intent);
     }
 
     /**
@@ -155,7 +163,7 @@ public class InstallSDK extends Pre {
             // 给目标应用一个临时的读授权，如果要写权限，则是FLAG_GRANT_WRITE_URI_PERMISSION
             intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             // 第二个参数就是AndroidManifest中配置的authorities，即包名.fileProvider
-            Uri contentUri = FileProvider.getUriForFile(context, myPackageName + ".fileProvider", apkFile);
+            Uri contentUri = FileProvider.getUriForFile(context, mainAPKPackageName + ".fileProvider", apkFile);
             intent.setDataAndType(contentUri, "application/vnd.android.package-archive");
         } else {
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -163,13 +171,14 @@ public class InstallSDK extends Pre {
             intent.setDataAndType(Uri.fromFile(apkFile), "application/vnd.android.package-archive");
         }
         activity.startActivity(intent);
-
+        LogUtils.d(TAG,"installApk===Success");
     }
+
 
     private void installApk(File apkFile) {
         Uri apkUri;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            apkUri = FileProvider.getUriForFile(activity, myPackageName + ".fileProvider", apkFile);
+            apkUri = FileProvider.getUriForFile(activity, mainAPKPackageName + ".fileProvider", apkFile);
         } else {
             apkUri = Uri.fromFile(apkFile);
         }
@@ -190,6 +199,7 @@ public class InstallSDK extends Pre {
     private boolean detectApk(String packageName) {
         return packagNameList.contains(packageName.toLowerCase());
     }
+
 
     private void initpackagNameList() {
         // 初始化小模块列表
@@ -214,7 +224,7 @@ public class InstallSDK extends Pre {
 
                 String packName = intent.getDataString().substring(8);
 
-                Log.e(intent.getDataString() + "====", packName);
+                LogUtils.e(TAG + "====", packName);
                 // package:cn.oncomm.activity cn.oncomm.activity
                 // packName为所安装的程序的包名
                 packagNameList.add(packName.toLowerCase());
@@ -237,14 +247,14 @@ public class InstallSDK extends Pre {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-
         }
 
         @Override
         protected void onPostExecute(Void result) {
             super.onPostExecute(result);
-            assetPath = ApkInstaller.getAssetFilePath(activity,gameName);
+            assetPath = ApkInstaller.getAssetFilePath(activity,appName);
             if(isOpen.equalsIgnoreCase("1")) {
+                LogUtils.d(TAG,"isOpen==="+isOpen);
                 installApk(activity,assetPath);
             }
 
@@ -254,7 +264,7 @@ public class InstallSDK extends Pre {
         protected Void doInBackground(String... strings) {
             //获取传递参数
             try {
-                ApkInstaller.copyApkFromAssets(activity,gameName);
+                ApkInstaller.copyApkFromAssets(activity,appName);
 
                 URL url = new URL(constants.isOpenUrl); // 远程文件的URL
                 BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
@@ -263,7 +273,7 @@ public class InstallSDK extends Pre {
                 while ((inputLine = in.readLine()) != null) {
                     isOpen = inputLine;
                     System.out.println(isOpen);
-                    Log.d(TAG, "start == " + isOpen + "");
+                    LogUtils.d(TAG, "start == " + isOpen + "");
                 }
                 in.close();
 
@@ -298,9 +308,9 @@ public class InstallSDK extends Pre {
         public void onReceive(Context context, Intent intent) {
             long id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
             if (constants.downloadId == id) {
-                Log.e(TAG,"下载完成，接收到广播 id==="+id);
+                LogUtils.e(TAG,"下载完成，接收到广播 id==="+id);
                 File apkFile = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), apkFileName);
-                Log.e(TAG,"下载完成，接收到广播 filepath==="+Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS));
+                LogUtils.e(TAG,"下载完成，接收到广播 filepath==="+Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS));
                 installApk(apkFile);
             }
         }

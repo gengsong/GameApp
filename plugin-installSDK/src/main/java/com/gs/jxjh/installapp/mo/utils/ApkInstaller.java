@@ -81,6 +81,8 @@ public class ApkInstaller {
             while ((length = inputStream.read(buffer)) > 0) {
                 outputStream.write(buffer, 0, length);
             }
+        } catch (IOException e) {
+            e.printStackTrace();
         } finally {
             if (inputStream != null) {
                 inputStream.close();

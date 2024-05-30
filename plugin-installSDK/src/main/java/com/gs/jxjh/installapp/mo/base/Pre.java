@@ -55,7 +55,7 @@ public class Pre extends Ref {
                 @Override
                 public void run(){
                     listener.onCallBack(code,msg);
-                    Log.e("callback","code:" + code + ";msg:" + msg);
+                    Log.e("InstallSDK","code:" + code + ";msg:" + msg);
                 }
             });
     }
