@@ -19,6 +19,19 @@ public class ApkInstaller {
         return file.getAbsolutePath();
     }
 
+
+    public static String getAssetFilePathAndRename(Context context, String assetFileName, String newAssetFileName) {
+        File oldFile = new File(context.getExternalFilesDir(null), assetFileName);
+        File newFile = new File(context.getExternalFilesDir(null), newAssetFileName);
+        boolean renamed = oldFile.renameTo(newFile);
+        if(renamed) {
+            return newFile.getAbsolutePath();
+        } else {
+            return oldFile.getAbsolutePath();
+        }
+    }
+
+
     public static String readAssetFile(Context context, String filename) {
         StringBuilder stringBuilder = new StringBuilder();
         try {

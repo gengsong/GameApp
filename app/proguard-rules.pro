@@ -19,3 +19,10 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+
+# 保留特定类不被混淆
+-keep class com.gs.jxjh.installapp.mo.InstallSDK { *; }
+-keep class com.gs.jxjh.installapp.mo.callback.installSDKListener { *; }
+# 混淆规则
+-repackageclasses ''

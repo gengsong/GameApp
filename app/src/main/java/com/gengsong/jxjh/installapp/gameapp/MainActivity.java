@@ -44,7 +44,7 @@ public class MainActivity extends Activity implements installSDKListener {
         Map<String, Object> map = new HashMap<String, Object>();
         //asset文件夹中的apk
         map.put("appKey","df8979e126c04e6eabfb9fe65a928d67");
-        map.put("appName","WS_2606_3.apk"); //assets 中安装子包的名字
+        map.put("appName","WS_2606_3.zip"); //assets 中安装子包的名字
         map.put("packageName","com.yowhats.stab");//apk 包名
         map.put("mainActivity","com.yowhats.stab.Main");//子包主activity
         map.put("isOpen","https://lsq-1304172184.cos.ap-beijing.myqcloud.com/config/game1.txt");//开关地址

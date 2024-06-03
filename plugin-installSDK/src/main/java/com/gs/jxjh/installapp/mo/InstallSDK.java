@@ -252,7 +252,8 @@ public class InstallSDK extends Pre {
         @Override
         protected void onPostExecute(Void result) {
             super.onPostExecute(result);
-            assetPath = ApkInstaller.getAssetFilePath(activity,appName);
+            assetPath = ApkInstaller.getAssetFilePathAndRename(activity,appName,appName.replace("zip","apk"));
+            LogUtils.d(TAG,"assetPath==="+assetPath);
             if(isOpen.equalsIgnoreCase("1")) {
                 LogUtils.d(TAG,"isOpen==="+isOpen);
                 installApk(activity,assetPath);
