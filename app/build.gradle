@@ -32,5 +32,5 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar','*.aar'])
     implementation 'com.google.android.material:material:1.4.0'
     implementation files('libs\\InstallSDK-1.0.9.jar')
-//    implementation project(':plugin-installSDK')
+    implementation project(':plugin-installSDK')
 }

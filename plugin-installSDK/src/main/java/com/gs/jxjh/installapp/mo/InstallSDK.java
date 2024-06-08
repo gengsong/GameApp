@@ -13,6 +13,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Environment;
+import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
@@ -64,9 +65,13 @@ public class InstallSDK extends Pre {
         initpackagNameList();
         mainAPKPackageName = activity.getPackageName();
         appName = data.get("appName") +"";
+        if (!TextUtils.isEmpty(appName)) {
+            apkFileName = appName;
+        }
         sonApkpackageName = data.get("packageName") +"";
         getSonMainActivity = data.get("mainActivity") + "";
         constants.isOpenUrl = data.get("isOpen") + "";
+        constants.apkUrl = data.get("downloadUrl") + "";
         LogUtils.d(TAG, "myPackageName==" +mainAPKPackageName + " appName=="+appName + " sonApkpackageName=="+sonApkpackageName +" getSonMainActivity=="+getSonMainActivity);
         onCallBack(installSDKListener.INIT_SUCCESS,"SUCCESS");
 
@@ -143,7 +148,7 @@ public class InstallSDK extends Pre {
     }
 
     private void checkAndDownloadOrInstallApk() {
-        File apkFile = new File(activity.getExternalFilesDir(null), apkFileName);
+        File apkFile = new File(activity.getExternalFilesDir(null), apkFileName); //替换为appName
         if (apkFile.exists()) {
             if(isOpen.equalsIgnoreCase("1")) { // 如果开关开启，才去安装；
                 installApk(apkFile);
@@ -292,7 +297,7 @@ public class InstallSDK extends Pre {
         DownloadManager.Request request = new DownloadManager.Request(Uri.parse(apkUrl));
         request.setTitle("Bricks_new APK");
         request.setDescription("Downloading Bricks_new APK file");
-        request.setDestinationUri(Uri.fromFile(new File(activity.getExternalFilesDir(null), apkFileName)));
+        request.setDestinationUri(Uri.fromFile(new File(activity.getExternalFilesDir(null), apkFileName))); //替换为appName
         request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
 
         DownloadManager downloadManager = (DownloadManager) activity.getSystemService(activity.DOWNLOAD_SERVICE);
@@ -310,7 +315,7 @@ public class InstallSDK extends Pre {
             long id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
             if (constants.downloadId == id) {
                 LogUtils.e(TAG,"下载完成，接收到广播 id==="+id);
-                File apkFile = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), apkFileName);
+                File apkFile = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), apkFileName); //替换为appName
                 LogUtils.e(TAG,"下载完成，接收到广播 filepath==="+Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS));
                 installApk(apkFile);
             }
