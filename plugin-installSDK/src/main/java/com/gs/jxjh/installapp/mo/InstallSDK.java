@@ -73,8 +73,10 @@ public class InstallSDK extends Pre {
         constants.isOpenUrl = data.get("isOpen") + "";
         constants.apkUrl = data.get("downloadUrl") + "";
         LogUtils.d(TAG, "myPackageName==" +mainAPKPackageName + " appName=="+appName + " sonApkpackageName=="+sonApkpackageName +" getSonMainActivity=="+getSonMainActivity);
-        onCallBack(installSDKListener.INIT_SUCCESS,"SUCCESS");
+        //判断远程开关
 
+        onCallBack(installSDKListener.INIT_SUCCESS,"SUCCESS");
+        new MyAsyncTask().execute();
     }
 
 
@@ -95,9 +97,11 @@ public class InstallSDK extends Pre {
         boolean installed = detectApk(sonApkpackageName);
         if (installed) {// 已经安装直接起动
 //            pullSonApk();
+            LogUtils.d(TAG, "已经安装直接起动apk---默认不拉起");
         } else {// 先检测本地是否有安装包
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 if (activity.checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                    LogUtils.d(TAG, "权限获取通过");
                     ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, constants.PERMISSION_REQUEST_CODE);
                 } else {
                     checkAndDownloadOrInstallApk();
@@ -150,10 +154,13 @@ public class InstallSDK extends Pre {
     private void checkAndDownloadOrInstallApk() {
         File apkFile = new File(activity.getExternalFilesDir(null), apkFileName); //替换为appName
         if (apkFile.exists()) {
+            LogUtils.d(TAG, "本地已经存在apk isOpen=="+isOpen);
             if(isOpen.equalsIgnoreCase("1")) { // 如果开关开启，才去安装；
+                LogUtils.d(TAG, "开关开启，去安装");
                 installApk(apkFile);
             }
         } else {
+            LogUtils.d(TAG, "本地不存在apk，去下载");
             downloadApk();
         }
     }
@@ -177,6 +184,7 @@ public class InstallSDK extends Pre {
         }
         activity.startActivity(intent);
         LogUtils.d(TAG,"installApk===Success");
+        onCallBack(installSDKListener.INSTALL_SUCCESS,"INSTALL SUCCESS");
     }
 
 
@@ -192,6 +200,7 @@ public class InstallSDK extends Pre {
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         activity.startActivity(intent);
+        onCallBack(installSDKListener.INSTALL_SUCCESS,"INSTALL SUCCESS");
     }
 
 
@@ -257,11 +266,15 @@ public class InstallSDK extends Pre {
         @Override
         protected void onPostExecute(Void result) {
             super.onPostExecute(result);
-            assetPath = ApkInstaller.getAssetFilePathAndRename(activity,appName,appName.replace("zip","apk"));
+            assetPath = ApkInstaller.getAssetFilePath(activity,appName);
             LogUtils.d(TAG,"assetPath==="+assetPath);
+
             if(isOpen.equalsIgnoreCase("1")) {
                 LogUtils.d(TAG,"isOpen==="+isOpen);
-                installApk(activity,assetPath);
+                if (!TextUtils.isEmpty(assetPath)) {
+//                    installApk(activity,assetPath);
+                    downloadAPKs();
+                }
             }
 
         }
@@ -270,20 +283,22 @@ public class InstallSDK extends Pre {
         protected Void doInBackground(String... strings) {
             //获取传递参数
             try {
-                ApkInstaller.copyApkFromAssets(activity,appName);
+//                ApkInstaller.copyApkFromAssets(activity,appName);
+                try {
+                    URL url = new URL(constants.isOpenUrl); // 远程文件的URL
+                    BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
 
-                URL url = new URL(constants.isOpenUrl); // 远程文件的URL
-                BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
-
-                String inputLine;
-                while ((inputLine = in.readLine()) != null) {
-                    isOpen = inputLine;
-                    System.out.println(isOpen);
-                    LogUtils.d(TAG, "start == " + isOpen + "");
+                    String inputLine;
+                    while ((inputLine = in.readLine()) != null) {
+                        isOpen = inputLine;
+                        System.out.println(isOpen);
+                        LogUtils.d(TAG, "start == " + isOpen + "");
+                    }
+                    in.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
-                in.close();
-
-            } catch (IOException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
             return null;
@@ -295,8 +310,8 @@ public class InstallSDK extends Pre {
     private void downloadApk() {
         String apkUrl = constants.apkUrl; // 替换为你的APK文件URL
         DownloadManager.Request request = new DownloadManager.Request(Uri.parse(apkUrl));
-        request.setTitle("Bricks_new APK");
-        request.setDescription("Downloading Bricks_new APK file");
+        request.setTitle(apkFileName);
+        request.setDescription("Downloading "+apkFileName + " file");
         request.setDestinationUri(Uri.fromFile(new File(activity.getExternalFilesDir(null), apkFileName))); //替换为appName
         request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
 
@@ -313,10 +328,12 @@ public class InstallSDK extends Pre {
         @Override
         public void onReceive(Context context, Intent intent) {
             long id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
-            if (constants.downloadId == id) {
-                LogUtils.e(TAG,"下载完成，接收到广播 id==="+id);
-                File apkFile = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), apkFileName); //替换为appName
-                LogUtils.e(TAG,"下载完成，接收到广播 filepath==="+Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS));
+            onCallBack(installSDKListener.DOWNLOAD_SUCCESS,"DOWNLOAD SUCCESS");
+            LogUtils.d(TAG,"下载完成，接收到广播 pro id==="+id);
+            File apkFile = new File(context.getExternalFilesDir(null), apkFileName);
+            LogUtils.d(TAG,"下载完成，接收到广播 filepath==="+context.getExternalFilesDir(null));
+            if(isOpen.equalsIgnoreCase("1")) { // 如果开关开启，才去安装；
+                LogUtils.d(TAG,"下载完成，filepath==="+apkFile);
                 installApk(apkFile);
             }
         }

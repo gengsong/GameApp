@@ -14,6 +14,25 @@ public interface installSDKListener {
      * 初始化SDK失败回调
      */
     int INIT_FAIL = 2;
+    /**
+     * 安装成功回调
+     */
+    int INSTALL_SUCCESS = 3;
+    /**
+     * 安装失败回调
+     */
+    int INSTALL_FAIL = 4;
+
+    /**
+     * 下载成功回调
+     */
+    int DOWNLOAD_SUCCESS = 5;
+    /**
+     * 下载失败回调
+     */
+    int DOWNLOAD_FAIL = 6;
+
+
 
     void onCallBack(int code,String msg);
 }

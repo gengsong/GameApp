@@ -20,6 +20,7 @@ public class ApkInstaller {
     }
 
 
+    //读取本地assets文件夹中的zip，名重命名为apk
     public static String getAssetFilePathAndRename(Context context, String assetFileName, String newAssetFileName) {
         File oldFile = new File(context.getExternalFilesDir(null), assetFileName);
         File newFile = new File(context.getExternalFilesDir(null), newAssetFileName);

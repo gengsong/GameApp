@@ -5,6 +5,8 @@ import android.os.Bundle;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.gs.jxjh.installapp.mo.InstallSDK;
 import com.gs.jxjh.installapp.mo.callback.installSDKListener;
+
+import android.os.Handler;
 import android.view.View;
 import java.util.HashMap;
 import java.util.Map;
@@ -34,8 +36,8 @@ public class MainActivity extends Activity implements installSDKListener {
         actionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                installSDK.installAPKs();
-//                installSDK.downloadAPKs();
+//                installSDK.installAPKs();
+                installSDK.downloadAPKs();
             }
         });
     }
@@ -52,7 +54,7 @@ public class MainActivity extends Activity implements installSDKListener {
         map.put("appName","Bricks_new.apk"); //assets 中安装子包的名字
         map.put("packageName","com.Brick.Blast2024");//apk 包名
         map.put("mainActivity","com.Brick.Blast2024.MainActivity");//子包主activity
-        map.put("downloadUrl","");//远程地址
+        map.put("downloadUrl","https://lsq-1304172184.cos.ap-beijing.myqcloud.com/apk/Bricks_new.apk");//远程地址
         map.put("isOpen","https://lsq-1304172184.cos.ap-beijing.myqcloud.com/config/game1.txt");//开关地址
         installSDK.init(this,map);
 
@@ -72,9 +74,10 @@ public class MainActivity extends Activity implements installSDKListener {
 //                installSDK.downloadAPKs();
                 break;
             case INIT_FAIL:// 初始化失败
-                showMessage(msg);
-                break;
+            case DOWNLOAD_SUCCESS:// 下载成功
+            case INSTALL_SUCCESS:// 安装成功
             default:
+                showMessage(msg);
                 break;
         }
     }
