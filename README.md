@@ -2,10 +2,11 @@
 ##支持如下功能：
 ###
 * 此Demo用演示集成安装SDK，具体步骤如下：
-* 1、MainActivity 中初始化完成后调用installAPKs方法
+* 1、MainActivity 中初始化完成后调用本地方法，即installAPKs
 * 2、res-xml 实现filepaths.xml
 * 3、AndroidManifest.xml中定义 provider,并设置权限uses-permission
 * 4、assets文件夹放置要安装的apk
+* 5、远程安装方法，downloadAPKs
 
 #### 版本1.0.9
 升级内容:
@@ -56,8 +57,16 @@
 #### 版本1.1.1
 升级内容:
 1、新增下载成功、安装成功回调；
-2、远程下载改为自动安装；
+2、远程下载改为自动调用；
 3、解决有些设备无法安装问题；
+
+#### 版本1.1.2
+升级内容:
+1、优化了第一次安装成功后不自动下载apk问题；
+2、新增了日志；
+
+
+
 
 
 

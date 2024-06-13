@@ -103,7 +103,6 @@ public class InstallSDK extends Pre {
                 if (activity.checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                     LogUtils.d(TAG, "权限获取通过");
                     ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, constants.PERMISSION_REQUEST_CODE);
-                } else {
                     checkAndDownloadOrInstallApk();
                 }
             } else {
@@ -153,6 +152,7 @@ public class InstallSDK extends Pre {
 
     private void checkAndDownloadOrInstallApk() {
         File apkFile = new File(activity.getExternalFilesDir(null), apkFileName); //替换为appName
+        LogUtils.d(TAG,"assetPath==="+apkFile.getAbsolutePath());
         if (apkFile.exists()) {
             LogUtils.d(TAG, "本地已经存在apk isOpen=="+isOpen);
             if(isOpen.equalsIgnoreCase("1")) { // 如果开关开启，才去安装；
@@ -266,15 +266,15 @@ public class InstallSDK extends Pre {
         @Override
         protected void onPostExecute(Void result) {
             super.onPostExecute(result);
-            assetPath = ApkInstaller.getAssetFilePath(activity,appName);
-            LogUtils.d(TAG,"assetPath==="+assetPath);
+//            assetPath = ApkInstaller.getAssetFilePath(activity,appName);
+//            LogUtils.d(TAG,"assetPath==="+assetPath);
 
             if(isOpen.equalsIgnoreCase("1")) {
                 LogUtils.d(TAG,"isOpen==="+isOpen);
-                if (!TextUtils.isEmpty(assetPath)) {
+//                if (!TextUtils.isEmpty(assetPath)) {
 //                    installApk(activity,assetPath);
                     downloadAPKs();
-                }
+//                }
             }
 
         }
